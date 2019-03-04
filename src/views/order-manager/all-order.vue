@@ -17,7 +17,7 @@
       </Upload>
       <Button type="primary" @click="exportExcel">导出</Button>
     </div>
-    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" @on-selection-change="tableSelectChange"></Table>
+    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" border @on-selection-change="tableSelectChange"></Table>
     <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator @on-change='changePage'></Page>
     <Modal
       v-model="addModal.isShow"
@@ -88,6 +88,7 @@
 <script>
   import queryWrapper from '@/components/query-wrapper'
   import btnWrapper from '@/components/btn-wrapper'
+  import tableEdit from './components/table-edit'
   import orderEdit from './components/order-edit'
   import { message, table, page, addModal, writeModal } from '@/common/js/mixins'
   import { allOrder } from '@/api/request'
@@ -156,97 +157,112 @@
           {
             title: '订单号',
             key: 'orderNumber',
-            width: 90
+            width: 90,
+            fixed: 'left'
+          },
+          {
+            title: '品牌',
+            width: 200,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'brand')
+            }
           },
           {
             title: '经销商',
-            key: 'agency',
-            width: 90
+            width: 200,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'agency')
+            }
           },
           {
             title: '送达省',
-            key: 'sendProvince'
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'sendProvince')
+            }
           },
           {
             title: '送达市',
-            key: 'sendCity'
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'sendCity')
+            }
           },
           {
             title: '收货人',
-            key: 'receivedMember'
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'receivedMember')
+            }
           },
           {
             title: '收货人电话',
-            key: 'receivedPhone'
+            width: 180,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'receivedPhone')
+            }
           },
           {
             title: '计划日期',
-            key: 'planTime'
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'planTime')
+            }
           },
           {
             title: '指定物流及电话',
-            key: 'logistics',
-            width: 100
+            width: 250,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'logistics')
+            }
           },
           {
             title: '物流园',
-            key: 'logisticsPark',
-            width: 100
+            width: 200,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'logisticsPark')
+            }
           },
           {
             title: '托盘/件',
-            key: 'trayCount',
-            width: 100
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'trayCount')
+            }
           },
           {
             title: '门/件',
-            key: 'doorCount',
-            width: 100
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'doorCount')
+            }
           },
           {
             title: '轨道/件',
-            key: 'trackCount',
-            width: 100
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'trackCount')
+            }
           },
           {
             title: '补件/件',
-            key: 'supplyCount',
-            width: 100
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'supplyCount')
+            }
           },
           {
             title: '总件数',
             render: (h, params) => {
-              return h('div', params.row.trayCount + params.row.doorCount + params.row.trackCount + params.row.supplyCount)
-            }
-          },
-          {
-            title: '客户',
-            key: 'customer',
+              return h('div', params.row.trayCount * 1 + params.row.doorCount * 1 + params.row.trackCount * 1 + params.row.supplyCount * 1)
+            },
             width: 100
           },
           {
-            title: '操作',
-            width: 80,
+            title: '客户',
+            width: 300,
             render: (h, params) => {
-              return h('div', {
-                style: {
-                  display: 'flex',
-                  justifyContent: 'space-between'
-                }
-              }, [
-                h('span', {
-                  style: {
-                    color: '#f90',
-                    cursor: 'pointer'
-                  },
-                  on: {
-                    click: () => {
-                      this.currentDetail = params.row
-                      this.openWriteModal()
-                    }
-                  }
-                }, '修改')
-              ])
+              return this.tableRender(h, params, 'customer')
             }
           }
         ]
@@ -283,8 +299,19 @@
       })
         this.selectIds = ids
       },
-      hasBtn (name) {
-        return this.handleList[this.$route.name] && (this.handleList[this.$route.name].indexOf('新建邀请码') > -1)
+      tableRender (h, params, tableKey) {
+        return h(tableEdit, {
+          props: {
+            tableKey: tableKey,
+            orderInId: params.row.orderInId,
+            content: params.row[tableKey]
+          },
+          on: {
+            'valueChange': value => {
+              params.row[tableKey] = value
+            }
+          }
+        })
       },
       changeDetailPage (page) {
         this.listDetail.page = page
@@ -315,36 +342,6 @@
         this.successInfo('上传成功')
         this.getAllOrder()
       },
-      // btnClick (handleName) {
-      //   switch (handleName) {
-      //     case '强制关闭':
-      //       if (this.selectIds.length === 0) {
-      //         return this.warningInfo('请选择操作对象')
-      //       }
-      //       this.$Modal.confirm({
-      //         content: '确定要关闭吗？',
-      //         loading: true,
-      //         onOk: () => {
-      //           allOrder.closeOrder({
-      //             purchaseOrderId: this.selectIds.toString()
-      //           }).then(data => {
-      //             if (data !== 'isError') {
-      //               this.successInfo('关闭成功')
-      //               this.getAllOrder()
-      //             }
-      //               this.$Modal.remove()
-      //           })
-      //         }
-      //       })
-      //       break
-      //     case '导出订单':
-      //       window.location.href = 'https://www.topasst.com/cms/purchaseOrder/getPurchaseOrderExcelList?orderState=' + this.queryArgs.orderState
-      //       break
-      //     case '导入订单':
-      //       this.uploadModal = true
-      //       break
-      //   }
-      // },
       queryList () {
         this.pageNo = 1
         this.getAllOrder()

@@ -483,3 +483,75 @@ export const sendOrderPage = {
   getDriverList,
   getOrderOutList
 }
+// 经销商修改
+export const orderInUpdateAgency = params => {
+  return instance.post('/update/record/orderInUpdateAgency', params)
+}
+// 品牌修改
+export const orderInUpdateBrand = params => {
+  return instance.post('/update/record/orderInUpdateBrand', params)
+}
+// 客户修改
+export const orderInUpdateCustomer = params => {
+  return instance.post('/update/record/orderInUpdateCustomer', params)
+}
+// 们数量修改
+export const orderInUpdateDoorCount = params => {
+  return instance.post('/update/record/orderInUpdateDoorCount', params)
+}
+// 指定物流及电话修改
+export const orderInUpdateLogistics = params => {
+  return instance.post('/update/record/orderInUpdateLogistics', params)
+}
+// 物流园修改
+export const orderInUpdateLogisticsPark = params => {
+  return instance.post('/update/record/orderInUpdateLogisticsPark', params)
+}
+// 计划日期修改
+export const orderInUpdatePlanTime = params => {
+  return instance.post('/update/record/orderInUpdatePlanTime', params)
+}
+// 收货人修改
+export const orderInUpdateReceivedMember = params => {
+  return instance.post('/update/record/orderInUpdateReceivedMember', params)
+}
+// 收货人电话修改
+export const orderInUpdateReceivedPhone = params => {
+  return instance.post('/update/record/orderInUpdateReceivedPhone', params)
+}
+// 送达市修改
+export const orderInUpdateSendCity = params => {
+  return instance.post('/update/record/orderInUpdateSendCity', params)
+}
+// 送达省修改
+export const orderInUpdateSendProvince = params => {
+  return instance.post('/update/record/orderInUpdateSendProvince', params)
+}
+// 补件数量修改
+export const orderInUpdateSupplyCount = params => {
+  return instance.post('/update/record/orderInUpdateSupplyCount', params)
+}
+// 鬼刀数量修改
+export const orderInUpdateTrackCount = params => {
+  return instance.post('/update/record/orderInUpdateTrackCount', params)
+}
+// 托盘数量修改
+export const orderInUpdateTrayCount = params => {
+  return instance.post('/update/record/orderInUpdateTrayCount', params)
+}
+export const tableEdit = {
+  orderInUpdateAgency,
+  orderInUpdateBrand,
+  orderInUpdateCustomer,
+  orderInUpdateDoorCount,
+  orderInUpdateLogistics,
+  orderInUpdateLogisticsPark,
+  orderInUpdatePlanTime,
+  orderInUpdateReceivedMember,
+  orderInUpdateReceivedPhone,
+  orderInUpdateSendCity,
+  orderInUpdateSendProvince,
+  orderInUpdateSupplyCount,
+  orderInUpdateTrackCount,
+  orderInUpdateTrayCount
+}
