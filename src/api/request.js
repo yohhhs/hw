@@ -473,15 +473,25 @@ export const getDriverList = params => {
 export const getOrderOutList = params => {
   return instance.post('/order/out/getOrderOutList', params)
 }
+// 入库审核
+export const auditOrderIn = params => {
+  return instance.post('/order/in/auditOrderIn', params)
+}
+// 出库审核
+export const auditOrderOut = params => {
+  return instance.post('/order/out/auditOrderOut', params)
+}
 export const allOrder = {
   getOrderInList,
-  updateOrderInCount
+  updateOrderInCount,
+  auditOrderIn
 }
 export const sendOrderPage = {
   getOrderInDetail,
   addOrderOutCount,
   getDriverList,
-  getOrderOutList
+  getOrderOutList,
+  auditOrderOut
 }
 // 经销商修改
 export const orderInUpdateAgency = params => {
@@ -539,6 +549,43 @@ export const orderInUpdateTrackCount = params => {
 export const orderInUpdateTrayCount = params => {
   return instance.post('/update/record/orderInUpdateTrayCount', params)
 }
+
+// 出库差异说明修改
+export const orderOutUpdateDifferenceDetail = params => {
+  return instance.post('/update/record/orderOutUpdateDifferenceDetail', params)
+}
+// 实际出库数量修改
+export const orderOutUpdateDifferenceGoodsCount = params => {
+  return instance.post('/update/record/orderOutUpdateDifferenceGoodsCount', params)
+}
+// 司机修改
+export const orderOutUpdateDriverId = params => {
+  return instance.post('/update/record/orderOutUpdateDriverId', params)
+}
+// 运费修改
+export const orderOutUpdateFreight = params => {
+  return instance.post('/update/record/orderOutUpdateFreight', params)
+}
+// 物流单修改
+export const orderOutUpdateLogisticsImage = params => {
+  return instance.post('/update/record/orderOutUpdateLogisticsImage', params)
+}
+// 出库日期修改
+export const orderOutUpdateOutTime = params => {
+  return instance.post('/update/record/orderOutUpdateOutTime', params)
+}
+// 实发物流修改
+export const orderOutUpdateRealLogistics = params => {
+  return instance.post('/update/record/orderOutUpdateRealLogistics', params)
+}
+// 木材费修改
+export const orderOutUpdateWoodMoney = params => {
+  return instance.post('/update/record/orderOutUpdateWoodMoney', params)
+}// 木材费修改
+export const getUpdateRecordList = params => {
+  return instance.post('/update/record/getUpdateRecordList', params)
+}
+
 export const tableEdit = {
   orderInUpdateAgency,
   orderInUpdateBrand,
@@ -553,5 +600,13 @@ export const tableEdit = {
   orderInUpdateSendProvince,
   orderInUpdateSupplyCount,
   orderInUpdateTrackCount,
-  orderInUpdateTrayCount
+  orderInUpdateTrayCount,
+  orderOutUpdateDifferenceDetail,
+  orderOutUpdateDifferenceGoodsCount,
+  orderOutUpdateDriverId,
+  orderOutUpdateFreight,
+  orderOutUpdateLogisticsImage,
+  orderOutUpdateOutTime,
+  orderOutUpdateRealLogistics,
+  orderOutUpdateWoodMoney
 }

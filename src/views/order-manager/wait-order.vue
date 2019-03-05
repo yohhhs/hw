@@ -1,15 +1,19 @@
 <template>
   <div class="wait-order">
     <query-wrapper @userQuery="queryList">
-      <Input class="query-item" v-model="queryArgs.keyword" placeholder="用户姓名/商品名称"/>
-      <Input class="query-item" v-model="queryArgs.keyword" placeholder="营业部"/>
+      <Input class="query-item" v-model="queryArgs.orderNumber" placeholder="单号"/>
+      <Input class="query-item" v-model="queryArgs.userName" placeholder="用户名"/>
+      <Input class="query-item" v-model="queryArgs.updateColumn" placeholder="更新内容"/>
+      <Select  class="query-item" placeholder="更新类型" v-model="queryArgs.updateType" clearable>
+        <Option v-for="item in updateType" :value="item.id" :key="item.id">{{ item.name }}</Option>
+      </Select>
       <DatePicker
         class="query-item"
-        type="datetime" placeholder="下单开始时间"
+        type="datetime" placeholder="开始时间"
         clearable @on-change="orderStartChange"></DatePicker>
       <DatePicker
         class="query-item"
-        type="datetime" placeholder="下单结束时间"
+        type="datetime" placeholder="结束时间"
         clearable @on-change="orderEndChange"></DatePicker>
     </query-wrapper>
     <btn-wrapper @btnClick="btnClick"></btn-wrapper>
@@ -33,165 +37,62 @@
   import btnWrapper from '@/components/btn-wrapper'
   import orderEdit from './components/order-edit'
   import {message, table, page} from '@/common/js/mixins'
-  import {allOrder} from '@/api/request'
+  import {allOrder, getUpdateRecordList} from '@/api/request'
 
   export default {
     data() {
       return {
+        updateType: [
+          {
+            id: 1,
+            name: '更新数据'
+          },
+          {
+            id: 2,
+            name: '审核'
+          }
+        ],
         currentDetail: null,
         lookModal: false,
         selectIds: [],
         queryArgs: {
-          keyword: '',
-          addStartTime: '',
-          addEndTime: '',
-          saleDepartmentId: ''
+          orderNumber: '',
+          userName: '',
+          updateColumn: '',
+          startTime: '',
+          endTime: '',
+          updateType: ''
         },
         tableColumns: [
           {
-            type: 'selection',
-            width: 60,
-            align: 'center'
+            title: '订单号',
+            key: 'orderNumber'
           },
           {
-            title: '订单编号',
-            key: 'purchaseOrderNumber'
+            title: '用户名',
+            key: 'userName'
           },
           {
-            title: '集采商品编号',
-            key: 'purchaseGoodsNumber'
-          },
-          {
-            title: '用户',
-            key: 'agentMemberName'
-          },
-          {
-            title: '营业部',
-            key: 'saleDepartmentName'
-          },
-          {
-            title: '订单金额',
+            title: '更新类型',
             render: (h, params) => {
-              return h('div', params.row.goodsCount * params.row.salePrice)
+              return h('div', params.row.updateType === 1 ? '更新数据' : '审核')
             }
           },
           {
-            title: '商品名称',
-            key: 'goodsName'
+            title: '更新内容',
+            key: 'updateColumn'
           },
           {
-            title: '数量',
-            key: 'goodsCount'
+            title: '旧数据',
+            key: 'oldData'
           },
           {
-            title: '支付方式',
-            render: (h, params) => {
-              return h('div', params.row.payType === 1 ? '线上' : '线下')
-            }
+            title: '新数据',
+            key: 'newData'
           },
           {
-            title: '起订量',
-            render: (h, params) => {
-              return h('div', params.row.haveMinCount === 1 ? '达标' : '未达标')
-            }
-          },
-          {
-            title: '下单时间',
-            key: 'createTimeStr'
-          },
-          {
-            title: '集采结束时间',
-            key: 'purchaseEndTime'
-          },
-          {
-            title: '操作',
-            render: (h, params) => {
-              return h('div', [
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                    size: 'small'
-                  },
-                  style: {
-                    margin: '5px'
-                  },
-                  on: {
-                    click: () => {
-                      allOrder.orderDetail({
-                        purchaseOrderId: params.row.purchaseOrderId
-                      }).then(data => {
-                        if (data !== 'isError') {
-                          this.currentDetail = data
-                          this.lookModal = true
-                        }
-                      })
-                    }
-                  }
-                }, '查看'),
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                    size: 'small'
-                  },
-                  style: {
-                    margin: '5px'
-                  },
-                  on: {
-                    click: () => {
-                      if (params.row.haveMinCount === 0) {
-                        return this.warningInfo(`起订量未达标，还需购买${params.row.notHaveCount}个`)
-                      }
-                      if (params.row.canSend === 0 ) {
-                        return this.warningInfo('集采时间未结束')
-                      }
-                      this.$Modal.confirm({
-                        content: '确定要发货吗？',
-                        loading: true,
-                        onOk: () => {
-                          allOrder.sendOrder({
-                            purchaseOrderIds: params.row.purchaseOrderId
-                          }).then(data => {
-                            this.$Modal.remove()
-                            if (data !== 'isError') {
-                              this.successInfo('发货成功')
-                              this.getAllOrder()
-                            }
-                          })
-                        }
-                      })
-                    }
-                  }
-                }, '确认发货'),
-                h('Button', {
-                  props: {
-                    type: 'primary',
-                    size: 'small'
-                  },
-                  style: {
-                    margin: '5px'
-                  },
-                  on: {
-                    click: () => {
-                      this.$Modal.confirm({
-                        content: '确定要退款吗？',
-                        loading: true,
-                        onOk: () => {
-                          allOrder.returnPay({
-                            purchaseOrderId: params.row.purchaseOrderId
-                          }).then(data => {
-                            this.$Modal.remove()
-                            if (data !== 'isError') {
-                              this.successInfo('退款成功')
-                              this.getAllOrder()
-                            }
-                          })
-                        }
-                      })
-                    }
-                  }
-                }, '退款')
-              ])
-            }
+            title: '时间',
+            key: 'createTime'
           }
         ]
       }
@@ -203,15 +104,14 @@
     },
     mixins: [message, table, page],
     created() {
-      this.getAllOrder()
+      this.getUpdateRecordList()
     },
     methods: {
-      getAllOrder() {
+      getUpdateRecordList() {
         this.openTableLoading()
-        allOrder.getOrderList({
+        getUpdateRecordList({
           pageNo: this.pageNo,
           pageSize: 10,
-          orderState: 2,
           ...this.queryArgs
         }).then(data => {
           this.closeTableLoading()
@@ -269,17 +169,17 @@
       },
       queryList() {
         this.pageNo = 1
-        this.getAllOrder()
+        this.getUpdateRecordList()
       },
       changePage(no) {
         this.pageNo = no
-        this.getAllOrder()
+        this.getUpdateRecordList()
       },
       orderStartChange(time) {
-        this.addStartTime = time
+        this.queryArgs.startTime = time
       },
       orderEndChange(time) {
-        this.addEndTime = time
+        this.queryArgs.endTime = time
       }
     }
   }

@@ -10,22 +10,28 @@
         class="query-item"
         type="datetime" placeholder="结束时间"
         clearable :editable="false" @on-change="orderEndChange"></DatePicker>
+      <Select class="query-item" placeholder="审核状态" v-model="queryArgs.orderInAudit" clearable>
+        <Option v-for="item in auditList" :value="item.id" :key="item.id">{{ item.name }}</Option>
+      </Select>
     </query-wrapper>
     <div class="btn-wrapper" style="padding-top: 15px;">
       <Upload style="display: inline-block" :action="action" :on-success="fileSuccess">
         <Button style="margin-right: 20px;" type="primary">导入</Button>
       </Upload>
+      <Button style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
       <Button type="primary" @click="exportExcel">导出</Button>
     </div>
-    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" border @on-selection-change="tableSelectChange"></Table>
-    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator @on-change='changePage'></Page>
+    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" border
+           @on-selection-change="tableSelectChange"></Table>
+    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
+          @on-change='changePage'></Page>
     <Modal
       v-model="addModal.isShow"
       :mask-closable="false"
       title="新建邀请码">
       <order-edit ref="addEdit" v-if="addModal.isShow"></order-edit>
       <div slot="footer" style="text-align: center">
-          <Button type="primary" :loading="addModal.loading" @click="addConfirm">新建邀请码</Button>
+        <Button type="primary" :loading="addModal.loading" @click="addConfirm">新建邀请码</Button>
       </div>
     </Modal>
     <Modal
@@ -41,7 +47,8 @@
       v-model="changeStatusModal.isShow"
       :mask-closable="false"
       title="修改状态">
-      <p v-if="changeStatusModal.isShow" style="text-align: center;font-size: 14px;">确认{{currentDetail.goodsStatus === 0 ? '启用' : '停用'}}当前邀请码征订</p>
+      <p v-if="changeStatusModal.isShow" style="text-align: center;font-size: 14px;">确认{{currentDetail.goodsStatus === 0
+        ? '启用' : '停用'}}当前邀请码征订</p>
       <div slot="footer" style="text-align: center">
         <Button type="primary" :loading="changeStatusModal.loading" @click="changeStatusConfirm">确认修改</Button>
       </div>
@@ -60,11 +67,12 @@
       :mask-closable="false"
       width="700"
       title="查看订单详情">
-        <div v-if="lookModal" style="display:flex;justify-content:space-between;font-size: 14px;margin-bottom: 15px;padding: 0 5px;">
-          <span>邀请码：{{currentDetail.inviteCode}}</span>
-          <span>规格：{{currentDetail.standard}}</span>
-          <span>征订总数：{{listDetail.count}}</span>
-        </div>
+      <div v-if="lookModal"
+           style="display:flex;justify-content:space-between;font-size: 14px;margin-bottom: 15px;padding: 0 5px;">
+        <span>邀请码：{{currentDetail.inviteCode}}</span>
+        <span>规格：{{currentDetail.standard}}</span>
+        <span>征订总数：{{listDetail.count}}</span>
+      </div>
       <Table :columns="listDetail.col" :loading="listDetail.loading" :data="listDetail.data"></Table>
       <div slot="footer">
         <!--<Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator @on-change='changeDetailPage'></Page>-->
@@ -76,7 +84,8 @@
       width="300"
       title="导入订单">
       <div style="text-align: center">
-        <Upload :on-success="uploadSuccess" :format="['xls']" action="https://www.topasst.com/cms/purchaseOrder/addPurchaseOrder" :on-format-error="formatHandle">
+        <Upload :on-success="uploadSuccess" :format="['xls']"
+                action="https://www.topasst.com/cms/purchaseOrder/addPurchaseOrder" :on-format-error="formatHandle">
           <Button style="width: 200px" type="primary" ghost icon="ios-cloud-upload-outline">导入订单</Button>
         </Upload>
       </div>
@@ -90,12 +99,12 @@
   import btnWrapper from '@/components/btn-wrapper'
   import tableEdit from './components/table-edit'
   import orderEdit from './components/order-edit'
-  import { message, table, page, addModal, writeModal } from '@/common/js/mixins'
-  import { allOrder } from '@/api/request'
-  import { baseUrl } from '@/common/js/config'
+  import {message, table, page, addModal, writeModal} from '@/common/js/mixins'
+  import {allOrder} from '@/api/request'
+  import {baseUrl} from '@/common/js/config'
 
   export default {
-    data () {
+    data() {
       return {
         action: baseUrl + '/order/in/getOrderInList',
         listDetail: {
@@ -126,6 +135,16 @@
         currentDetail: null,
         lookModal: false,
         selectIds: [],
+        auditList: [
+          {
+            id: 0,
+            name: '未审核'
+          },
+          {
+            id: 1,
+            name: '已审核'
+          }
+        ],
         changeStatusModal: {
           isShow: false,
           loading: false
@@ -137,7 +156,8 @@
         queryArgs: {
           orderNumber: '',
           startTime: '',
-          endTime: ''
+          endTime: '',
+          orderInAudit: ''
         },
         orderStatusList: [
           {
@@ -153,7 +173,13 @@
             name: '已完成'
           }
         ],
+        selectionList: [],
         tableColumns: [
+          {
+            type: 'selection',
+            width: 50,
+            fixed: 'left'
+          },
           {
             title: '订单号',
             key: 'orderNumber',
@@ -274,11 +300,11 @@
       orderEdit
     },
     mixins: [message, table, page, addModal, writeModal],
-    created () {
+    created() {
       this.getAllOrder()
     },
     methods: {
-      getAllOrder () {
+      getAllOrder() {
         this.openTableLoading()
         allOrder.getOrderInList({
           pageNo: this.pageNo,
@@ -287,21 +313,23 @@
         }).then(data => {
           this.closeTableLoading()
           if (data !== 'isError') {
+            data.list.forEach(item => {
+              if (item.orderInAudit === 1) {
+                item['_disabled'] = true
+              }
+            })
             this.tableData = data.list
             this.total = data.total
           }
         })
       },
-      tableSelectChange (selection) {
-        let ids = []
-        selection.forEach(item => {
-          ids.push(item.purchaseOrderId)
-      })
-        this.selectIds = ids
+      tableSelectChange(selection) {
+        this.selectionList = selection
       },
-      tableRender (h, params, tableKey) {
+      tableRender(h, params, tableKey) {
         return h(tableEdit, {
           props: {
+            orderInAudit: params.row.orderInAudit,
             tableKey: tableKey,
             orderInId: params.row.orderInId,
             content: params.row[tableKey]
@@ -313,11 +341,11 @@
           }
         })
       },
-      changeDetailPage (page) {
+      changeDetailPage(page) {
         this.listDetail.page = page
         this.getListDetail()
       },
-      getListDetail () {
+      getListDetail() {
         this.listDetail.loading = true
         allOrder.getOrderList({
           pageNo: 1,
@@ -338,25 +366,25 @@
           this.listDetail.loading = false
         })
       },
-      fileSuccess () {
+      fileSuccess() {
         this.successInfo('上传成功')
         this.getAllOrder()
       },
-      queryList () {
+      queryList() {
         this.pageNo = 1
         this.getAllOrder()
       },
-      changePage (no) {
+      changePage(no) {
         this.pageNo = no
         this.getAllOrder()
       },
-      orderStartChange (time) {
+      orderStartChange(time) {
         this.queryArgs.startTime = time
       },
-      orderEndChange (time) {
+      orderEndChange(time) {
         this.queryArgs.endTime = time
       },
-      uploadSuccess (res) {
+      uploadSuccess(res) {
         if (res.statusCode == 200) {
           this.successInfo('导入成功')
         } else if (res.statusCode == 412) {
@@ -364,16 +392,16 @@
         }
         this.getAllOrder()
       },
-      formatHandle () {
+      formatHandle() {
         this.warningInfo('文件格式不正确')
       },
-      openChangeStatusModal () {
+      openChangeStatusModal() {
         this.changeStatusModal.isShow = true
       },
-      openDeleteModal () {
+      openDeleteModal() {
         this.deleteModal.isShow = true
       },
-      changeStatusConfirm () {
+      changeStatusConfirm() {
         this.changeStatusModal.loading = true
         allOrder.updateGoodsStatus({
           goodsId: this.currentDetail.goodsId,
@@ -389,7 +417,7 @@
           this.changeStatusModal.loading = false
         })
       },
-      deleteConfirm () {
+      deleteConfirm() {
         this.deleteModal.loading = true
         allOrder.deleteSolicitGoods({
           goodsId: this.currentDetail.goodsId
@@ -405,7 +433,7 @@
           this.deleteModal.loading = false
         })
       },
-      addConfirm () {
+      addConfirm() {
         let returnData = this.$refs.addEdit.returnData()
         if (returnData) {
           this.openAddLoading()
@@ -423,7 +451,7 @@
           })
         }
       },
-      writeConfirm () {
+      writeConfirm() {
         let returnData = this.$refs.writeEdit.returnData()
         if (returnData) {
           this.openWriteLoading()
@@ -442,7 +470,7 @@
           })
         }
       },
-      exportExcel () {
+      exportExcel() {
         let params = []
         for (let k in this.queryArgs) {
           if (this.queryArgs[k] === 0) {
@@ -452,6 +480,23 @@
           }
         }
         window.location.href = baseUrl + '/order/in/getOrderInListExcel?' + params.join('&')
+      },
+      priview() {
+        if (this.selectionList && this.selectionList.length > 0) {
+          allOrder.auditOrderIn({
+            orderInId: this.selectionList.map(item => {
+              return item.orderInId
+            }).toString()
+          }).then(data => {
+            if (data !== 'isError') {
+              this.successInfo('审核成功')
+              this.getAllOrder()
+              this.selectionList = []
+            }
+          })
+        } else {
+          this.warningInfo('请选择操作列表')
+        }
       }
     }
   }

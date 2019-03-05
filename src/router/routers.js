@@ -134,6 +134,11 @@ export const appRouter = [
         path: 'send-order',
         name: 'send-order',
         component: resolve => require(['@/views/order-manager/send-order.vue'], resolve)
+      },
+      {
+        path: 'wait-order',
+        name: 'wait-order',
+        component: resolve => require(['@/views/order-manager/wait-order.vue'], resolve)
       }
     ]
   },
