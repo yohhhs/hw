@@ -481,17 +481,32 @@ export const auditOrderIn = params => {
 export const auditOrderOut = params => {
   return instance.post('/order/out/auditOrderOut', params)
 }
+// 出库审核
+export const reAuditOrderIn = params => {
+  return instance.post('/order/in/reAuditOrderIn', params)
+}
+// 出库审核
+export const deleteOrderIn = params => {
+  return instance.post('/order/in/deleteOrderIn', params)
+}
+// 出库审核
+export const reAuditOrderOut = params => {
+  return instance.post('/order/out/reAuditOrderOut', params)
+}
 export const allOrder = {
   getOrderInList,
   updateOrderInCount,
-  auditOrderIn
+  auditOrderIn,
+  reAuditOrderIn,
+  deleteOrderIn
 }
 export const sendOrderPage = {
   getOrderInDetail,
   addOrderOutCount,
   getDriverList,
   getOrderOutList,
-  auditOrderOut
+  auditOrderOut,
+  reAuditOrderOut
 }
 // 经销商修改
 export const orderInUpdateAgency = params => {

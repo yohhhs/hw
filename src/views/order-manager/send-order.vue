@@ -27,10 +27,11 @@
       </Select>
     </query-wrapper>
     <div class="btn-wrapper" style="padding-top: 15px;">
-      <Button style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
-      <Button type="primary" @click="exportExcel">导出</Button>
+      <Button v-if="hasBtn('审核')" style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
+      <Button v-if="hasBtn('取消审核')" style="margin-right: 20px;" type="primary" @click="rePriview">取消审核</Button>
+      <Button v-if="hasBtn('导出')" type="primary" @click="exportExcel">导出</Button>
     </div>
-    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="400" border
+    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300" border
            @on-selection-change="tableSelectChange"></Table>
     <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
           @on-change='changePage'></Page>
@@ -91,15 +92,23 @@
             fixed: 'left'
           },
           {
-            title: '品牌',
-            width: 120,
-            key: 'brand',
-            fixed: 'left'
-          },
-          {
             title: '订单号',
             key: 'orderNumber',
             width: 90,
+            fixed: 'left'
+          },
+          {
+            title: '审核状态',
+            fixed: 'left',
+            width: 120,
+            render: (h, params) => {
+              return h('div', params.row.orderOutAudit === 1 ? '已审核' : '未审核')
+            }
+          },
+          {
+            title: '品牌',
+            width: 120,
+            key: 'brand'
           },
           {
             title: '出库日期',
@@ -239,6 +248,9 @@
       this.getOrderList()
     },
     methods: {
+      hasBtn (name) {
+        return this.handleList[this.$route.name].indexOf(name) !== -1
+      },
       getDriverList() {
         sendOrderPage.getDriverList().then(data => {
           if (data !== 'isError') {
@@ -309,12 +321,29 @@
       priview() {
         if (this.selectionList && this.selectionList.length > 0) {
           sendOrderPage.auditOrderOut({
-            orderInId: this.selectionList.map(item => {
+            orderInIds: this.selectionList.map(item => {
               return item.orderInId
             }).toString()
           }).then(data => {
             if (data !== 'isError') {
               this.successInfo('审核成功')
+              this.getOrderList()
+              this.selectionList = []
+            }
+          })
+        } else {
+          this.warningInfo('请选择记录')
+        }
+      },
+      rePriview() {
+        if (this.selectionList && this.selectionList.length > 0) {
+          sendOrderPage.reAuditOrderOut({
+            orderInIds: this.selectionList.map(item => {
+              return item.orderInId
+            }).toString()
+          }).then(data => {
+            if (data !== 'isError') {
+              this.successInfo('取消审核成功')
               this.getOrderList()
               this.selectionList = []
             }

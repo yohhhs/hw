@@ -8,7 +8,8 @@
           &nbsp;{{driverName}}
         </template>
         <template v-if="type === 3">
-          &nbsp;<img class="show-img" v-if="content !== ''" :src="content">
+          &nbsp; <img class="show-img" v-if="content" :src="content">
+            <Icon v-if="content" type="md-contract" @click="lookImg"/>
         </template>
       </div>
       <div v-else>
@@ -30,6 +31,11 @@
         <div class="btn-wrapper">
           <Icon class="icon" type="md-checkmark" @click="changeConfirm"></Icon>
           <Icon class="icon" type="md-close" @click="closeEdit"></Icon>
+        </div>
+      </div>
+      <div v-if="type === 3 && isLookImg" class="img-mask" @click="closeImg">
+        <div class="img-wrapper">
+          <img :src="content" alt="">
         </div>
       </div>
     </div>
@@ -73,6 +79,7 @@
     },
     data () {
       return {
+        isLookImg: false,
         action: baseUrl + '/file/uploadFile',
         api: {
           brand: 'orderInUpdateBrand',
@@ -114,6 +121,12 @@
       }
     },
     methods: {
+      lookImg () {
+        this.isLookImg = true
+      },
+      closeImg () {
+        this.isLookImg = false
+      },
       imgDetailSuccess (data) {
         if (data.data) {
           this.inputContent = 'http://132.232.197.118/images/' + data.data
@@ -163,6 +176,9 @@
 
 <style lang="less" scoped>
   .show-label {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     /*min-height: 32px;*/
   }
   .table-edit {
@@ -185,5 +201,29 @@
   .show-img {
     max-width: 100%;
     max-height: 32px;
+  }
+  .img-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    .img-wrapper {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 400px;
+      height: 400px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+    }
   }
 </style>

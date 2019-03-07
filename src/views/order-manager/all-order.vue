@@ -26,83 +26,89 @@
       </Select>
     </query-wrapper>
     <div class="btn-wrapper" style="padding-top: 15px;">
-      <Upload style="display: inline-block" :action="action" :on-success="fileSuccess">
+      <Upload v-if="hasBtn('导入')" style="display: inline-block" :action="action" :on-success="fileSuccess">
         <Button style="margin-right: 20px;" type="primary">导入</Button>
       </Upload>
-      <Button style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
-      <Button type="primary" @click="exportExcel">导出</Button>
+      <Button v-if="hasBtn('导出')" style="margin-right: 20px;" type="primary" @click="exportExcel">导出</Button>
+      <Button v-if="hasBtn('审核')" style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
+      <Button v-if="hasBtn('取消审核')" style="margin-right: 20px;" type="primary" @click="cancelPriview">取消审核</Button>
+      <Button v-if="hasBtn('删除')" style="margin-right: 20px;" type="primary" @click="deleteOrder">删除</Button>
     </div>
-    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="400" border
+    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300" border
            @on-selection-change="tableSelectChange"></Table>
-    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
-          @on-change='changePage'></Page>
-    <Modal
-      v-model="addModal.isShow"
-      :mask-closable="false"
-      title="新建邀请码">
-      <order-edit ref="addEdit" v-if="addModal.isShow"></order-edit>
-      <div slot="footer" style="text-align: center">
-        <Button type="primary" :loading="addModal.loading" @click="addConfirm">新建邀请码</Button>
-      </div>
-    </Modal>
-    <Modal
-      v-model="writeModal.isShow"
-      :mask-closable="false"
-      title="修改数量">
-      <order-edit ref="writeEdit" v-if="writeModal.isShow" isWrite :detail="currentDetail"></order-edit>
-      <div slot="footer" style="text-align: center">
-        <Button type="primary" :loading="writeModal.loading" @click="writeConfirm">修改数量</Button>
-      </div>
-    </Modal>
-    <Modal
-      v-model="changeStatusModal.isShow"
-      :mask-closable="false"
-      title="修改状态">
-      <p v-if="changeStatusModal.isShow" style="text-align: center;font-size: 14px;">确认{{currentDetail.goodsStatus === 0
-        ? '启用' : '停用'}}当前邀请码征订</p>
-      <div slot="footer" style="text-align: center">
-        <Button type="primary" :loading="changeStatusModal.loading" @click="changeStatusConfirm">确认修改</Button>
-      </div>
-    </Modal>
-    <Modal
-      v-model="deleteModal.isShow"
-      :mask-closable="false"
-      title="关闭邀请码征订">
-      <p style="text-align: center;font-size: 14px;">确认关闭当前邀请码征订</p>
-      <div slot="footer" style="text-align: center">
-        <Button type="error" :loading="deleteModal.loading" @click="deleteConfirm">确认关闭</Button>
-      </div>
-    </Modal>
-    <Modal
-      v-model="lookModal"
-      :mask-closable="false"
-      width="700"
-      title="查看订单详情">
-      <div v-if="lookModal"
-           style="display:flex;justify-content:space-between;font-size: 14px;margin-bottom: 15px;padding: 0 5px;">
-        <span>邀请码：{{currentDetail.inviteCode}}</span>
-        <span>规格：{{currentDetail.standard}}</span>
-        <span>征订总数：{{listDetail.count}}</span>
-      </div>
-      <Table :columns="listDetail.col" :loading="listDetail.loading" :data="listDetail.data"></Table>
-      <div slot="footer">
-        <!--<Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator @on-change='changeDetailPage'></Page>-->
-      </div>
-    </Modal>
-    <Modal
-      v-model="uploadModal"
-      :mask-closable="false"
-      width="300"
-      title="导入订单">
-      <div style="text-align: center">
-        <Upload :on-success="uploadSuccess" :format="['xls']"
-                action="https://www.topasst.com/cms/purchaseOrder/addPurchaseOrder" :on-format-error="formatHandle">
-          <Button style="width: 200px" type="primary" ghost icon="ios-cloud-upload-outline">导入订单</Button>
-        </Upload>
-      </div>
-      <div slot="footer">
-      </div>
-    </Modal>
+    <div style="margin-top: 40px;">
+      <Button type="warning" style="float: left" @click="reCheckout">反选</Button>
+      <Page style="text-align: center;" :current="pageNo" :total="total" show-elevator
+            @on-change='changePage'></Page>
+    </div>
+
+    <!--<Modal-->
+      <!--v-model="addModal.isShow"-->
+      <!--:mask-closable="false"-->
+      <!--title="新建邀请码">-->
+      <!--<order-edit ref="addEdit" v-if="addModal.isShow"></order-edit>-->
+      <!--<div slot="footer" style="text-align: center">-->
+        <!--<Button type="primary" :loading="addModal.loading" @click="addConfirm">新建邀请码</Button>-->
+      <!--</div>-->
+    <!--</Modal>-->
+    <!--<Modal-->
+      <!--v-model="writeModal.isShow"-->
+      <!--:mask-closable="false"-->
+      <!--title="修改数量">-->
+      <!--<order-edit ref="writeEdit" v-if="writeModal.isShow" isWrite :detail="currentDetail"></order-edit>-->
+      <!--<div slot="footer" style="text-align: center">-->
+        <!--<Button type="primary" :loading="writeModal.loading" @click="writeConfirm">修改数量</Button>-->
+      <!--</div>-->
+    <!--</Modal>-->
+    <!--<Modal-->
+      <!--v-model="changeStatusModal.isShow"-->
+      <!--:mask-closable="false"-->
+      <!--title="修改状态">-->
+      <!--<p v-if="changeStatusModal.isShow" style="text-align: center;font-size: 14px;">确认{{currentDetail.goodsStatus === 0-->
+        <!--? '启用' : '停用'}}当前邀请码征订</p>-->
+      <!--<div slot="footer" style="text-align: center">-->
+        <!--<Button type="primary" :loading="changeStatusModal.loading" @click="changeStatusConfirm">确认修改</Button>-->
+      <!--</div>-->
+    <!--</Modal>-->
+    <!--<Modal-->
+      <!--v-model="deleteModal.isShow"-->
+      <!--:mask-closable="false"-->
+      <!--title="关闭邀请码征订">-->
+      <!--<p style="text-align: center;font-size: 14px;">确认关闭当前邀请码征订</p>-->
+      <!--<div slot="footer" style="text-align: center">-->
+        <!--<Button type="error" :loading="deleteModal.loading" @click="deleteConfirm">确认关闭</Button>-->
+      <!--</div>-->
+    <!--</Modal>-->
+    <!--<Modal-->
+      <!--v-model="lookModal"-->
+      <!--:mask-closable="false"-->
+      <!--width="700"-->
+      <!--title="查看订单详情">-->
+      <!--<div v-if="lookModal"-->
+           <!--style="display:flex;justify-content:space-between;font-size: 14px;margin-bottom: 15px;padding: 0 5px;">-->
+        <!--<span>邀请码：{{currentDetail.inviteCode}}</span>-->
+        <!--<span>规格：{{currentDetail.standard}}</span>-->
+        <!--<span>征订总数：{{listDetail.count}}</span>-->
+      <!--</div>-->
+      <!--<Table :columns="listDetail.col" :loading="listDetail.loading" :data="listDetail.data"></Table>-->
+      <!--<div slot="footer">-->
+        <!--&lt;!&ndash;<Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator @on-change='changeDetailPage'></Page>&ndash;&gt;-->
+      <!--</div>-->
+    <!--</Modal>-->
+    <!--<Modal-->
+      <!--v-model="uploadModal"-->
+      <!--:mask-closable="false"-->
+      <!--width="300"-->
+      <!--title="导入订单">-->
+      <!--<div style="text-align: center">-->
+        <!--<Upload :on-success="uploadSuccess" :format="['xls']"-->
+                <!--action="https://www.topasst.com/cms/purchaseOrder/addPurchaseOrder" :on-format-error="formatHandle">-->
+          <!--<Button style="width: 200px" type="primary" ghost icon="ios-cloud-upload-outline">导入订单</Button>-->
+        <!--</Upload>-->
+      <!--</div>-->
+      <!--<div slot="footer">-->
+      <!--</div>-->
+    <!--</Modal>-->
   </div>
 </template>
 <script>
@@ -207,6 +213,14 @@
             key: 'orderNumber',
             width: 90,
             fixed: 'left'
+          },
+          {
+            title: '审核状态',
+            width: 120,
+            fixed: 'left',
+            render: (h, params) => {
+              return h('div', params.row.orderInAudit === 1 ? '已审核' : '未审核')
+            }
           },
           {
             title: '品牌',
@@ -326,6 +340,11 @@
       this.getAllOrder()
     },
     methods: {
+      hasBtn (name) {
+        if (this.handleList[this.$route.name]) {
+          return this.handleList[this.$route.name].indexOf(name) !== -1
+        }
+      },
       getAllOrder() {
         this.openTableLoading()
         allOrder.getOrderInList({
@@ -335,11 +354,11 @@
         }).then(data => {
           this.closeTableLoading()
           if (data !== 'isError') {
-            data.list.forEach(item => {
-              if (item.orderInAudit === 1) {
-                item['_disabled'] = true
-              }
-            })
+            // data.list.forEach(item => {
+            //   if (item.orderInAudit === 1) {
+            //     item['_disabled'] = true
+            //   }
+            // })
             this.tableData = data.list
             this.total = data.total
           }
@@ -455,43 +474,6 @@
           this.deleteModal.loading = false
         })
       },
-      addConfirm() {
-        let returnData = this.$refs.addEdit.returnData()
-        if (returnData) {
-          this.openAddLoading()
-          allOrder.addSolicitGoods({
-            ...returnData
-          }).then(data => {
-            this.closeAddLoading()
-            if (data !== 'isError') {
-              this.successInfo('新建邀请码成功')
-              this.getAllOrder()
-              this.closeAddModal()
-            }
-          }).catch(err => {
-            this.closeAddLoading()
-          })
-        }
-      },
-      writeConfirm() {
-        let returnData = this.$refs.writeEdit.returnData()
-        if (returnData) {
-          this.openWriteLoading()
-          allOrder.updateOrderInCount({
-            orderInId: this.currentDetail.orderInId,
-            ...returnData
-          }).then(data => {
-            this.closeWriteLoading()
-            if (data !== 'isError') {
-              this.successInfo('修改数量成功')
-              this.getAllOrder()
-              this.closeWriteModal()
-            }
-          }).catch(err => {
-            this.closeWriteLoading()
-          })
-        }
-      },
       exportExcel() {
         let params = []
         for (let k in this.queryArgs) {
@@ -506,7 +488,7 @@
       priview() {
         if (this.selectionList && this.selectionList.length > 0) {
           allOrder.auditOrderIn({
-            orderInId: this.selectionList.map(item => {
+            orderInIds: this.selectionList.map(item => {
               return item.orderInId
             }).toString()
           }).then(data => {
@@ -519,6 +501,48 @@
         } else {
           this.warningInfo('请选择操作列表')
         }
+      },
+      cancelPriview() {
+        if (this.selectionList && this.selectionList.length > 0) {
+          allOrder.reAuditOrderIn({
+            orderInIds: this.selectionList.map(item => {
+              return item.orderInId
+            }).toString()
+          }).then(data => {
+            if (data !== 'isError') {
+              this.successInfo('取消审核成功')
+              this.getAllOrder()
+              this.selectionList = []
+            }
+          })
+        } else {
+          this.warningInfo('请选择操作列表')
+        }
+      },
+      deleteOrder () {
+        if (this.selectionList && this.selectionList.length > 0) {
+          allOrder.deleteOrderIn({
+            orderInIds: this.selectionList.map(item => {
+              return item.orderInId
+            }).toString()
+          }).then(data => {
+            if (data !== 'isError') {
+              this.successInfo('删除成功')
+              this.correctPageNo(this.selectionList.length)
+              this.getAllOrder()
+              this.selectionList = []
+            }
+          })
+        } else {
+          this.warningInfo('请选择操作列表')
+        }
+      },
+      reCheckout () {
+        console.log(11)
+        this.tableData.forEach(item => {
+          item['_checked'] = true
+        })
+        this.tableData = JSON.parse(JSON.stringify(this.tableData))
       }
     }
   }

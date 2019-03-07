@@ -17,7 +17,7 @@
         clearable @on-change="orderEndChange"></DatePicker>
     </query-wrapper>
     <btn-wrapper @btnClick="btnClick"></btn-wrapper>
-    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData"
+    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300"
            @on-selection-change="tableSelectChange"></Table>
     <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
           @on-change='changePage'></Page>
