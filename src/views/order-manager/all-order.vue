@@ -37,7 +37,7 @@
     <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300" border
            @on-selection-change="tableSelectChange"></Table>
     <div style="margin-top: 40px;">
-      <Button type="warning" style="float: left" @click="reCheckout">反选</Button>
+      <!--<Button type="warning" style="float: left" @click="reCheckout">反选</Button>-->
       <Page style="text-align: center;" :current="pageNo" :total="total" show-elevator
             @on-change='changePage'></Page>
     </div>
@@ -123,7 +123,7 @@
   export default {
     data() {
       return {
-        action: baseUrl + '/order/in/getOrderInList',
+        action: baseUrl + '/order/in/readExcel',
         listDetail: {
           col: [
             {

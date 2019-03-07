@@ -50,6 +50,10 @@
           {
             id: 2,
             name: '审核'
+          },
+          {
+            id: 3,
+            name: '反审核'
           }
         ],
         currentDetail: null,

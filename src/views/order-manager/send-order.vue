@@ -12,7 +12,9 @@
       <Input class="query-item" v-model="queryArgs.logistics" placeholder="指定物流及电话" clearable/>
       <Input class="query-item" v-model="queryArgs.logisticsPark" placeholder="物流园" clearable/>
       <Input class="query-item" v-model="queryArgs.customer" placeholder="客户" clearable/>
-      <Input class="query-item" v-model="queryArgs.driverId" placeholder="司机id" clearable/>
+      <Select v-model="queryArgs.driverId" class="query-item" placeholder="请选择司机">
+        <Option v-for="item in driverList" :value="item.id" :key="item.name">{{ item.name }}</Option>
+      </Select>
       <Input class="query-item" v-model="queryArgs.orderInIds" placeholder="订单id" clearable/>
       <DatePicker
         class="query-item"
@@ -265,11 +267,11 @@
           ...this.queryArgs
         }).then(data => {
           if (data !== 'isError') {
-            data.list.forEach(item => {
-              if (item.orderOutAudit === 1) {
-                item['_disabled'] = true
-              }
-            })
+            // data.list.forEach(item => {
+            //   if (item.orderOutAudit === 1) {
+            //     item['_disabled'] = true
+            //   }
+            // })
             this.tableData = data.list
             this.total = data.total
           }
