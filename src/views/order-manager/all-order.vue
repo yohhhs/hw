@@ -2,6 +2,17 @@
   <div class="all-order">
     <query-wrapper @userQuery="queryList">
       <Input class="query-item" v-model="queryArgs.orderNumber" placeholder="单号" clearable/>
+      <Input class="query-item" v-model="queryArgs.brand" placeholder="品牌" clearable/>
+      <Input class="query-item" v-model="queryArgs.agency" placeholder="经销商" clearable/>
+      <Input class="query-item" v-model="queryArgs.sendProvince" placeholder="送达省" clearable/>
+      <Input class="query-item" v-model="queryArgs.sendCity" placeholder="送达市" clearable/>
+      <Input class="query-item" v-model="queryArgs.receivedMember" placeholder="收货人" clearable/>
+      <Input class="query-item" v-model="queryArgs.receivedPhone" placeholder="收货人电话" clearable/>
+      <Input class="query-item" v-model="queryArgs.planTime" placeholder="计划日期" clearable/>
+      <Input class="query-item" v-model="queryArgs.logistics" placeholder="物流园及电话" clearable/>
+      <Input class="query-item" v-model="queryArgs.logisticsPark" placeholder="物流园" clearable/>
+      <Input class="query-item" v-model="queryArgs.customer" placeholder="客户" clearable/>
+      <Input class="query-item" v-model="queryArgs.orderInIds" placeholder="订单id" clearable/>
       <DatePicker
         class="query-item"
         type="datetime" placeholder="开始时间"
@@ -21,7 +32,7 @@
       <Button style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
       <Button type="primary" @click="exportExcel">导出</Button>
     </div>
-    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" border
+    <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="400" border
            @on-selection-change="tableSelectChange"></Table>
     <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
           @on-change='changePage'></Page>
@@ -157,7 +168,18 @@
           orderNumber: '',
           startTime: '',
           endTime: '',
-          orderInAudit: ''
+          orderInAudit: '',
+          brand: '',
+          agency: '',
+          sendProvince: '',
+          sendCity: '',
+          receivedMember: '',
+          receivedPhone: '',
+          planTime: '',
+          logistics: '',
+          logisticsPark: '',
+          customer: '',
+          orderInIds: ''
         },
         orderStatusList: [
           {
