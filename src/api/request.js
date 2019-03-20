@@ -493,12 +493,16 @@ export const deleteOrderIn = params => {
 export const reAuditOrderOut = params => {
   return instance.post('/order/out/reAuditOrderOut', params)
 }
+export const addOrderIn = params => {
+  return instance.post('/order/in/addOrderIn', params)
+}
 export const allOrder = {
   getOrderInList,
   updateOrderInCount,
   auditOrderIn,
   reAuditOrderIn,
-  deleteOrderIn
+  deleteOrderIn,
+  addOrderIn
 }
 export const sendOrderPage = {
   getOrderInDetail,
@@ -600,6 +604,7 @@ export const orderOutUpdateWoodMoney = params => {
 export const getUpdateRecordList = params => {
   return instance.post('/update/record/getUpdateRecordList', params)
 }
+
 
 export const tableEdit = {
   orderInUpdateAgency,

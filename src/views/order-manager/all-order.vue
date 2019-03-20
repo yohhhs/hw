@@ -33,15 +33,25 @@
       <Button v-if="hasBtn('审核')" style="margin-right: 20px;" type="primary" @click="priview">审核</Button>
       <Button v-if="hasBtn('取消审核')" style="margin-right: 20px;" type="primary" @click="cancelPriview">取消审核</Button>
       <Button v-if="hasBtn('删除')" style="margin-right: 20px;" type="primary" @click="deleteOrder">删除</Button>
+      <Button v-if="hasBtn('添加')" style="margin-right: 20px;" type="primary" @click="openAddModal">添加</Button>
     </div>
     <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300" border
            @on-selection-change="tableSelectChange"></Table>
     <div style="margin-top: 40px;">
       <!--<Button type="warning" style="float: left" @click="reCheckout">反选</Button>-->
-      <Page style="text-align: center;" :current="pageNo" :total="total" show-elevator
-            @on-change='changePage'></Page>
+      <Page style="text-align: center;" :current="pageNo" :total="total" show-elevator show-sizer
+            @on-change='changePage' @on-page-size-change="changePageSize"></Page>
     </div>
-
+    <Modal
+      v-model="addModal.isShow"
+      :mask-closable="false"
+      title="查看订单详情">
+      <order-edit v-if="addModal.isShow" ref="addEdit"></order-edit>
+      <div slot="footer">
+        <Button type="primary" :loading="addModal.loading" @click="addConfirm">添加</Button>
+        <Button type="error" @click="closeAddModal">取消</Button>
+      </div>
+    </Modal>
     <!--<Modal-->
       <!--v-model="addModal.isShow"-->
       <!--:mask-closable="false"-->
@@ -215,75 +225,20 @@
             fixed: 'left'
           },
           {
-            title: '审核状态',
-            width: 120,
-            fixed: 'left',
+            title: '计划日期',
+            width: 180,
             render: (h, params) => {
-              return h('div', params.row.orderInAudit === 1 ? '已审核' : '未审核')
-            }
-          },
-          {
-            title: '品牌',
-            width: 200,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'brand')
-            }
+              return this.tableRender(h, params, 'planTime')
+            },
+            fixed: 'left'
           },
           {
             title: '经销商',
             width: 200,
             render: (h, params) => {
               return this.tableRender(h, params, 'agency')
-            }
-          },
-          {
-            title: '送达省',
-            width: 150,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'sendProvince')
-            }
-          },
-          {
-            title: '送达市',
-            width: 150,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'sendCity')
-            }
-          },
-          {
-            title: '收货人',
-            width: 150,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'receivedMember')
-            }
-          },
-          {
-            title: '收货人电话',
-            width: 180,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'receivedPhone')
-            }
-          },
-          {
-            title: '计划日期',
-            width: 150,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'planTime')
-            }
-          },
-          {
-            title: '指定物流及电话',
-            width: 250,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'logistics')
-            }
-          },
-          {
-            title: '物流园',
-            width: 200,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'logisticsPark')
-            }
+            },
+            fixed: 'left'
           },
           {
             title: '托盘/件',
@@ -322,9 +277,65 @@
           },
           {
             title: '客户',
-            width: 300,
+            width: 500,
             render: (h, params) => {
               return this.tableRender(h, params, 'customer')
+            }
+          },
+          {
+            title: '收货人',
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'receivedMember')
+            }
+          },
+          {
+            title: '收货人电话',
+            width: 180,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'receivedPhone')
+            }
+          },
+          {
+            title: '指定物流及电话',
+            width: 400,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'logistics')
+            }
+          },
+          {
+            title: '物流园',
+            width: 200,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'logisticsPark')
+            }
+          },
+          {
+            title: '送达省',
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'sendProvince')
+            }
+          },
+          {
+            title: '送达市',
+            width: 150,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'sendCity')
+            }
+          },
+          {
+            title: '审核状态',
+            width: 120,
+            render: (h, params) => {
+              return h('div', params.row.orderInAudit === 1 ? '已审核' : '未审核')
+            }
+          },
+          {
+            title: '品牌',
+            width: 200,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'brand')
             }
           }
         ]
@@ -349,7 +360,7 @@
         this.openTableLoading()
         allOrder.getOrderInList({
           pageNo: this.pageNo,
-          pageSize: 10,
+          pageSize: this.pageSize,
           ...this.queryArgs
         }).then(data => {
           this.closeTableLoading()
@@ -417,6 +428,11 @@
       },
       changePage(no) {
         this.pageNo = no
+        this.getAllOrder()
+      },
+      changePageSize(size) {
+        this.pageSize = size
+        this.pageNo = 1
         this.getAllOrder()
       },
       orderStartChange(time) {
@@ -543,6 +559,22 @@
           item['_checked'] = true
         })
         this.tableData = JSON.parse(JSON.stringify(this.tableData))
+      },
+      addConfirm () {
+        let returnData = this.$refs.addEdit.returnData()
+        this.openAddLoading()
+        allOrder.addOrderIn({
+          ...returnData
+        }).then(data => {
+          this.closeAddLoading()
+          if (data !== 'isError') {
+            this.successInfo('添加成功')
+            this.getAllOrder()
+            this.closeAddModal()
+          }
+        }).catch(err => {
+          this.closeAddLoading()
+        })
       }
     }
   }

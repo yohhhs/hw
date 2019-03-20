@@ -19,8 +19,8 @@
     <btn-wrapper @btnClick="btnClick"></btn-wrapper>
     <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300"
            @on-selection-change="tableSelectChange"></Table>
-    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
-          @on-change='changePage'></Page>
+    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator show-sizer
+          @on-change='changePage' @on-page-size-change="changePageSize"></Page>
     <Modal
       v-model="lookModal"
       :mask-closable="false"
@@ -111,11 +111,16 @@
       this.getUpdateRecordList()
     },
     methods: {
+      changePageSize(size) {
+        this.pageSize = size
+        this.pageNo = 1
+        this.getUpdateRecordList()
+      },
       getUpdateRecordList() {
         this.openTableLoading()
         getUpdateRecordList({
           pageNo: this.pageNo,
-          pageSize: 10,
+          pageSize: this.pageSize,
           ...this.queryArgs
         }).then(data => {
           this.closeTableLoading()

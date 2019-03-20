@@ -35,8 +35,8 @@
     </div>
     <Table :columns="tableColumns" :loading="tableLoading" :data="tableData" :height="300" border
            @on-selection-change="tableSelectChange"></Table>
-    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator
-          @on-change='changePage'></Page>
+    <Page style="margin-top: 20px;text-align: center;" :current="pageNo" :total="total" show-elevator show-sizer
+          @on-change='changePage' @on-page-size-change="changePageSize"></Page>
   </div>
 </template>
 
@@ -100,34 +100,12 @@
             fixed: 'left'
           },
           {
-            title: '审核状态',
-            fixed: 'left',
-            width: 120,
+            title: '计划日期',
+            width: 180,
             render: (h, params) => {
-              return h('div', params.row.orderOutAudit === 1 ? '已审核' : '未审核')
-            }
-          },
-          {
-            title: '品牌',
-            width: 120,
-            key: 'brand'
-          },
-          {
-            title: '出库日期',
-            width: 200,
-            render: (h, params) => {
-              return this.tableRender(h, params, 'outTime')
-            }
-          },
-          {
-            title: '送达省',
-            key: 'sendProvince',
-            width: 150
-          },
-          {
-            title: '送达市',
-            key: 'sendCity',
-            width: 150
+              return this.tableRender(h, params, 'planTime')
+            },
+            fixed: 'left'
           },
           {
             title: '经销商',
@@ -169,6 +147,13 @@
             }
           },
           {
+            title: '差异数量',
+            width: 120,
+            render: (h, params) => {
+              return h('div', params.row.differenceGoodsCount - (params.row.trayCount * 1 + params.row.doorCount * 1 + params.row.trackCount * 1 + params.row.supplyCount * 1))
+            }
+          },
+          {
             title: '差异说明',
             width: 200,
             render: (h, params) => {
@@ -176,9 +161,16 @@
             }
           },
           {
+            title: '出库日期',
+            width: 200,
+            render: (h, params) => {
+              return this.tableRender(h, params, 'outTime')
+            }
+          },
+          {
             title: '客户',
             key: 'customer',
-            width: 200
+            width: 500
           },
           {
             title: '收货人',
@@ -194,7 +186,7 @@
           {
             title: '指定物流及电话',
             key: 'logistics',
-            width: 200
+            width: 400
           },
           {
             title: '物流园',
@@ -235,6 +227,28 @@
             render: (h, params) => {
               return this.tableRender(h, params, 'woodMoney')
             }
+          },
+          {
+            title: '送达省',
+            key: 'sendProvince',
+            width: 150
+          },
+          {
+            title: '送达市',
+            key: 'sendCity',
+            width: 150
+          },
+          {
+            title: '审核状态',
+            width: 120,
+            render: (h, params) => {
+              return h('div', params.row.orderOutAudit === 1 ? '已审核' : '未审核')
+            }
+          },
+          {
+            title: '品牌',
+            width: 120,
+            key: 'brand'
           }
         ]
       }
@@ -250,6 +264,11 @@
       this.getOrderList()
     },
     methods: {
+      changePageSize(size) {
+        this.pageSize = size
+        this.pageNo = 1
+        this.getOrderList()
+      },
       hasBtn (name) {
         return this.handleList[this.$route.name].indexOf(name) !== -1
       },
@@ -263,7 +282,7 @@
       getOrderList() {
         sendOrderPage.getOrderOutList({
           pageNo: this.pageNo,
-          pageSize: 10,
+          pageSize: this.pageSize,
           ...this.queryArgs
         }).then(data => {
           if (data !== 'isError') {

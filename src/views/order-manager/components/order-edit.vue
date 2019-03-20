@@ -1,27 +1,63 @@
 <template>
   <div class="order-edit">
     <div class="modal-input-item">
-      <p class="label">托盘数量</p>
+      <p class="label">品牌</p>
       <div style="width: 350px">
-        <InputNumber style="width: 100%" :min="0" v-model="formData.trayCount" placeholder="请输入托盘数量"/>
+        <Input style="width: 100%" v-model="formData.brand" placeholder="请输入品牌"/>
       </div>
     </div>
     <div class="modal-input-item">
-      <p class="label">门数量</p>
+      <p class="label">计划日期</p>
       <div style="width: 350px">
-        <InputNumber style="width: 100%" :min="0" v-model="formData.doorCount" placeholder="请输入门数量"/>
+        <Input style="width: 100%" v-model="formData.planTime" placeholder="请输入计划日期"/>
       </div>
     </div>
     <div class="modal-input-item">
-      <p class="label">轨道数量</p>
+      <p class="label">送达省</p>
       <div style="width: 350px">
-        <InputNumber style="width: 100%" :min="0" v-model="formData.trackCount" placeholder="请输入轨道数量"/>
+        <Input style="width: 100%" v-model="formData.sendProvince" placeholder="请输入送达省"/>
       </div>
     </div>
     <div class="modal-input-item">
-      <p class="label">补件数量</p>
+      <p class="label">送达市</p>
       <div style="width: 350px">
-        <InputNumber style="width: 100%" :min="0" v-model="formData.supplyCount"  placeholder="请输入补件数量"/>
+        <Input style="width: 100%" v-model="formData.sendCity" placeholder="请输入送达市"/>
+      </div>
+    </div>
+    <div class="modal-input-item">
+      <p class="label">经销商</p>
+      <div style="width: 350px">
+        <Input style="width: 100%" v-model="formData.agency" placeholder="请输入经销商"/>
+      </div>
+    </div>
+    <div class="modal-input-item">
+      <p class="label">客户</p>
+      <div style="width: 350px">
+        <Input style="width: 100%" v-model="formData.customer" placeholder="请输入客户"/>
+      </div>
+    </div>
+    <div class="modal-input-item">
+      <p class="label">收货人</p>
+      <div style="width: 350px">
+        <Input style="width: 100%" v-model="formData.receivedMember" placeholder="请输入收货人"/>
+      </div>
+    </div>
+    <div class="modal-input-item">
+      <p class="label">收货人电话</p>
+      <div style="width: 350px">
+        <Input style="width: 100%" v-model="formData.receivedPhone" placeholder="请输入收货人电话"/>
+      </div>
+    </div>
+    <div class="modal-input-item">
+      <p class="label">指定物流与电话</p>
+      <div style="width: 350px">
+        <Input style="width: 100%" v-model="formData.logistics" placeholder="请输入指定物流与电话"/>
+      </div>
+    </div>
+    <div class="modal-input-item">
+      <p class="label">物流园</p>
+      <div style="width: 350px">
+        <Input style="width: 100%" v-model="formData.logisticsPark" placeholder="请输入物流园"/>
       </div>
     </div>
   </div>
@@ -43,10 +79,16 @@
     data () {
         return {
           formData: {
-            trayCount: 0,
-            doorCount: 0,
-            trackCount: 0,
-            supplyCount: 0
+            brand: '',
+            planTime: '',
+            sendProvince: '',
+            sendCity: '',
+            agency: '',
+            customer: '',
+            receivedMember: '',
+            receivedPhone: '',
+            logistics: '',
+            logisticsPark: ''
           }
         }
     },
@@ -61,8 +103,7 @@
     },
     methods: {
       timeChange (time) {
-        this.formData.startTime = time[0]
-        this.formData.endTime = time[1]
+        this.formData.planTime = time
       },
       returnData () {
         return {

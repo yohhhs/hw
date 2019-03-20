@@ -1,19 +1,30 @@
 <template>
   <div class="query-wrapper">
-    <div class="input-wrapper">
+    <div v-show="isOpen" class="input-wrapper">
       <slot></slot>
     </div>
-    <div class="query-btn">
+    <div v-show="isOpen" class="query-btn">
       <Button type="primary" @click="query">查询</Button>
     </div>
+    <span class="turn" @click="trigger">
+      <Icon type="ios-reorder" />
+    </span>
   </div>
 </template>
 
 <script>
   export default {
+    data () {
+      return {
+        isOpen: true
+      }
+    },
     methods: {
       query() {
         this.$emit('userQuery')
+      },
+      trigger() {
+        this.isOpen = !this.isOpen
       }
     }
   }
@@ -23,7 +34,7 @@
   .query-wrapper {
     position: relative;
     margin-bottom: 5px;
-    padding: 10px 85px 10px 30px;
+    padding: 10px 85px 15px 30px;
     background: #fff;
     &:before {
       content: '';
@@ -39,6 +50,14 @@
       right: 15px;
       top: 50%;
       transform: translateY(-50%);
+    }
+    .turn {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      cursor: pointer;
     }
   }
 </style>
