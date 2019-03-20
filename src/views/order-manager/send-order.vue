@@ -110,7 +110,8 @@
           {
             title: '经销商',
             key: 'agency',
-            width: 200
+            width: 200,
+            fixed: 'left'
           },
           {
             title: '总件数',
