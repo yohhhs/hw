@@ -12,7 +12,6 @@
       <Input class="query-item" v-model="queryArgs.logistics" placeholder="物流园及电话" clearable/>
       <Input class="query-item" v-model="queryArgs.logisticsPark" placeholder="物流园" clearable/>
       <Input class="query-item" v-model="queryArgs.customer" placeholder="客户" clearable/>
-      <Input class="query-item" v-model="queryArgs.orderInIds" placeholder="订单id" clearable/>
       <DatePicker
         class="query-item"
         type="datetime" placeholder="开始时间"
@@ -499,7 +498,14 @@
             params.push(k + '=' + (this.queryArgs[k] ? this.queryArgs[k] : ''))
           }
         }
-        window.location.href = baseUrl + '/order/in/getOrderInListExcel?' + params.join('&')
+        let ord = '&orderInIds='
+        if (this.selectionList && this.selectionList.length > 0) {
+          ord += this.selectionList.map(item => {
+            return item.orderInId
+          }).toString()
+        }
+        // orderInIds
+        window.location.href = baseUrl + '/order/in/getOrderInListExcel?' + params.join('&') + ord
       },
       priview() {
         if (this.selectionList && this.selectionList.length > 0) {
